@@ -1,59 +1,31 @@
-# Making better mistakes
+# A Hierarchical Assessment on Adversarial Severity
 
-This repository contains the code for the paper:
+This is the official repository for the paper **A Hierarchical Assessment on Adversarial Severity**
 
-**[Making Better Mistakes: Leveraging Class Hierarchies with Deep Networks](https://arxiv.org/abs/1912.09393)**  
-Luca Bertinetto*, Romain Mueller*, Konstantinos Tertikas, Sina Samangooei, Nicholas A. Lord*.  
-_IEEE Conference on Computer Vision and Pattern Recognition (CVPR) 2020_
+## Setting up the environment
 
-Resources:
-* [Latest version on arXiv](https://arxiv.org/abs/1912.09393)
-* [CVPR 2020 open-access](http://openaccess.thecvf.com/content_CVPR_2020/html/Bertinetto_Making_Better_Mistakes_Leveraging_Class_Hierarchies_With_Deep_Networks_CVPR_2020_paper.html)
-* [Short video presentation](https://www.youtube.com/watch?v=SIHI8458Fkk)
-
-If you find our work useful/interesting, please consider citing it as:
-```
-@InProceedings{bertinetto2020making,
-author = {Bertinetto, Luca and Mueller, Romain and Tertikas, Konstantinos and Samangooei, Sina and Lord, Nicholas A.},
-title = {Making Better Mistakes: Leveraging Class Hierarchies With Deep Networks},
-booktitle = {The IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
-month = {June},
-year = {2020}
-} 
+First, install the environment via anaconda by following:
+```bash
+conda env create -f environment.yml
+conda activate better-mistakes
+pip install -e .
 ```
 
-<div align="center">
-  <img src="assets/figures_history.png"/>
-</div>
+Then, install AutoAttack and tqdm by running:
+```bash
+pip install git+https://github.com/fra31/auto-attack
+pip install tqdm
+```
 
 ## Data preparation
 
- * Download train+val sets of ImageNet-ILSVRC12 and/or train+val sets of [iNaturalist'19](https://github.com/visipedia/inat_comp)
- * Create the dataset by using the splits described in `dataset_splits/splits_tiered.zip` and `dataset_splits/splits_inat19.zip`.
- * For our experiments, we resized the images (stretching them) to 224x224. [This script](https://github.com/jvlmdr/trackdat/blob/master/scripts/resize_images.sh) is convenient for this purpose.
+ * Download train+val sets of [iNaturalist'19](https://www.kaggle.com/c/inaturalist-2019-fgvc6)
+ * Create the dataset by running the `generate_splits.py` script. Change the `DATA_PATH` AND `OUTPUT_DIR` to fit your specifications.
+ * Resize all the images into the 224x224 format by using the `resize_images.sh` script.
  * Rename `data_paths.yml.example` and edit it to reflect the paths on your system. 
 
-## Installation
 
-The training/testing environment can be initialized using conda as:
-```
-conda env update -n better-mistakes -f environment.yml
-source activate better-mistakes
-pip install -e .
-```
-Alternatively, we provide a Dockerfile that can be built using:
-```
-docker build -t better-mistakes .
-```
- 
-## Hierarchies
-
-The hierarchies are defined in `./data` for the datasets `tieredImageNet-H` and `iNaturalist19`. `ImageNet-H` is also avaialble for future convenience.
-For each of these datasets we provide the following files:
-* `dataset_isa.txt`, a text file containing all parent -> child relationships in the hierarchy.
-* `dataset_tree.pkl` a pickled `nltk.Tree` containing the hierarchy.
-* `dataset_ilsvrc_distances.txt.xz`, a compressed text file with every node pair and their ilsvrc distance.    Note that the pairs are sorted lexicographically.
-* `dataset_ilsvrc_distances.pkl.xz`, pickled dictionary of the above distances.
+# WE ARE HERE FOR THE MOMENT, WE MIGHT CHANGE THE RUNNING CODES
 
 ## Running the code
 
