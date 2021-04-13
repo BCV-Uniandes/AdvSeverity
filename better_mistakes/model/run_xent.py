@@ -3,9 +3,9 @@ import numpy as np
 import os.path
 import torch
 import torch.nn as nn
+
 from conditional import conditional
 from better_mistakes.model.performance import accuracy
-from better_mistakes.model.labels import make_batch_onehot_labels, make_batch_soft_labels
 
 topK_to_consider = (1, 5, 10, 20, 100)
 
@@ -18,28 +18,24 @@ hprec_ids = ["_precision/%02d" % i for i in topK_to_consider]
 hmAP_ids = ["_mAP/%02d" % i for i in topK_to_consider]
 
 
-def run(rank, loader, model, loss_function, distances, all_soft_labels,
-        classes, opts, epoch, prev_steps, optimizer=None, is_inference=True,
-        corrector=lambda x: x, attack_iters=0, attack_step=1.0, attack_eps=8 / 255,
-        attack='none',
-        trades_beta=0,
-        delta=None,
-        h_utils=None, h_alpha=0.5):  # h-free
+def run(rank, loader, model, loss_function, distances,
+        classes, opts, epoch, prev_steps,
+        optimizer=None, is_inference=True,
+        attack_iters=0, attack_step=1.0, attack_eps=8 / 255,
+        attack='none', delta=None, h_utils=None):  # h-free
     """
     Runs training or inference routine for standard classification with soft-labels style losses
     """
 
     topK_to_consider = (1, 5, 10, 20, 100)
-    max_dist = max(distances.distances.values())
 
     # Using different logging frequencies for training and validation
     log_freq = 1 if is_inference else opts.log_freq
 
     # strings useful for logging
     descriptor = "VAL" if is_inference else "TRAIN"
-    loss_id = "loss/" + opts.loss
-    dist_id = "ilsvrc_dist"
 
+    # ===============================================
     # Initialise accumulators to store the several measures of performance (accumulate as sum)
     num_logged = 0
     loss_accum = 0.0
@@ -52,12 +48,12 @@ def run(rank, loader, model, loss_function, distances, all_soft_labels,
     hprecision_accums = np.zeros(len(topK_to_consider))
     hmAP_accums = np.zeros(len(topK_to_consider))
 
-    # Affects the behaviour of components such as batch-norm
     if is_inference:
         model.eval()
     else:
         model.train()
 
+    # ===============================================
     # initialize numpy confusion matrix to store topks
     topK_to_consider = [i for i in topK_to_consider if i <= h_utils.current_n_classes]
     n = 0
@@ -74,34 +70,23 @@ def run(rank, loader, model, loss_function, distances, all_soft_labels,
                 embeddings = embeddings.cuda(opts.gpu, non_blocking=True)
             target = target.cuda(opts.gpu, non_blocking=True)
 
-            #######################################################
+            # ===============================================
             # Natural training step
-            #######################################################
+            # ===============================================
 
             if attack == 'none': 
 
-                # get model's prediction
                 output = model(embeddings)
-
-                # for soft-labels we need to add a log_softmax and get the soft labels
-                if opts.loss == "soft-labels":
-                    output = nn.functional.log_softmax(output, dim=1)
-                    if opts.soft_labels:
-                        target_distribution = make_batch_soft_labels(all_soft_labels, target, opts.num_classes, opts.batch_size, opts.gpu)
-                    else:
-                        target_distribution = make_batch_onehot_labels(target, opts.num_classes, opts.batch_size, opts.gpu)
-                    loss = loss_function(output, target_distribution)
-                else:
-                    loss = loss_function(output, target)
+                loss = loss_function(output, target)
 
                 if not is_inference:
                     optimizer.zero_grad()
                     loss.backward()
                     optimizer.step()
 
-            #######################################################
+            # ===============================================
             # Free adv training step
-            #######################################################
+            # ===============================================
 
             elif attack == 'free': 
 
@@ -118,16 +103,7 @@ def run(rank, loader, model, loss_function, distances, all_soft_labels,
                     if rep == 0:
                         output = logits.detach()
 
-                    # for soft-labels we need to add a log_softmax and get the soft labels
-                    if opts.loss == "soft-labels":
-                        logits = nn.functional.log_softmax(logits, dim=1)
-                        if opts.soft_labels:
-                            target_distribution = make_batch_soft_labels(all_soft_labels, target, opts.num_classes, opts.batch_size, opts.gpu)
-                        else:
-                            target_distribution = make_batch_onehot_labels(target, opts.num_classes, opts.batch_size, opts.gpu)
-                        loss = loss_function(logits, target_distribution)
-                    else:
-                        loss = loss_function(logits, target)
+                    loss = loss_function(logits, target)
 
                     if not is_inference:
                         optimizer.zero_grad()
@@ -137,159 +113,12 @@ def run(rank, loader, model, loss_function, distances, all_soft_labels,
                             grad = imgs.grad.data
                             delta += attack_step * torch.sign(grad)
                             delta = torch.clamp(delta, -attack_eps, attack_eps)
-                            # delta.clamp_(-attack_eps, attack_eps)
 
                         optimizer.step()
 
-            #######################################################
-            # TRADES adv training step
-            #######################################################
-
-            elif attack == 'trades':
-                model.eval()
-                criterion_kl = nn.KLDivLoss(size_average=False)
-                batch_size = embeddings.size(0)
-
-                with torch.no_grad():
-                    natural_dist = nn.functional.softmax(model(embeddings), dim=1).detach()
-                # model.zero_grad()  # removes gradients
-
-                x_adv = 0.001 * torch.randn_like(embeddings) + embeddings.detach()
-
-                for rep in range(attack_iters):
-                    x_adv.requires_grad = True
-
-                    loss_kl = criterion_kl(nn.functional.log_softmax(model(x_adv), dim=1),
-                                           natural_dist)
-
-                    with torch.no_grad():
-                        grad = torch.autograd.grad(loss_kl, [x_adv])[0]
-                        x_adv = x_adv.detach() + attack_step * torch.sign(grad)
-                        x_adv = torch.max(x_adv, embeddings - attack_eps)
-                        x_adv = torch.min(x_adv, embeddings + attack_eps)
-                        x_adv.clamp_(0.0, 1.0)
-
-                model.train()
-                x_adv.requires_grad = False
-
-                result = model(torch.cat((embeddings, x_adv), dim=0))
-                output, output_adv = torch.split(result, batch_size, dim=0)
-
-                # for soft-labels we need to add a log_softmax and get the soft labels
-                if opts.loss == "soft-labels":
-                    output = nn.functional.log_softmax(output, dim=1)
-                    if opts.soft_labels:
-                        target_distribution = make_batch_soft_labels(all_soft_labels, target, opts.num_classes, opts.batch_size, opts.gpu)
-                    else:
-                        target_distribution = make_batch_onehot_labels(target, opts.num_classes, opts.batch_size, opts.gpu)
-                    natural_loss = loss_function(output, target_distribution)
-                else:
-                    natural_loss = loss_function(output, target)
-
-                robust_loss = criterion_kl(nn.functional.log_softmax(output_adv, dim=1),
-                                           nn.functional.softmax(output, dim=1))
-
-                loss = natural_loss + trades_beta * robust_loss
-
-                if not is_inference:
-                    optimizer.zero_grad()
-                    loss.backward()
-                    optimizer.step()
-
-            #######################################################
-            # PGD adv training step
-            #######################################################
-
-            elif attack == 'PGD-u':
-
-                model.eval()
-
-                x_adv = attack_eps * (2 * torch.rand_like(embeddings) - 1)  + embeddings.clone()
-                x_adv = torch.clamp(x_adv, 0.0, 1.0)
-
-                for rep in range(attack_iters):
-
-                    if x_adv.size(0) == 0:
-                        break
-
-                    x_adv.requires_grad = True
-                    output = model(x_adv)
-                    loss = loss_function(output, target)
-                    loss.backward()
-
-                    with torch.no_grad():
-                        x_adv += attack_step * torch.sign(x_adv.grad)
-                        x_adv = torch.max(x_adv, embeddings - attack_eps)
-                        x_adv = torch.min(x_adv, embeddings + attack_eps)
-                        x_adv = torch.clamp(x_adv, 0.0, 1.0)
-
-                    model.zero_grad()
-
-                model.train()
-
-                output = model(x_adv)
-
-                if opts.loss == "soft-labels":
-                    output = nn.functional.log_softmax(output, dim=1)
-                    if opts.soft_labels:
-                        target_distribution = make_batch_soft_labels(all_soft_labels, target, opts.num_classes, opts.batch_size, opts.gpu)
-                    else:
-                        target_distribution = make_batch_onehot_labels(target, opts.num_classes, opts.batch_size, opts.gpu)
-                    loss = loss_function(output, target_distribution)
-                else:
-                    loss = loss_function(output, target)
-
-                if not is_inference:
-                    optimizer.zero_grad()
-                    loss.backward()
-                    optimizer.step()
-
-            #######################################################
-            # Hierarchical Free adv training step
-            #######################################################
-
-            elif attack == 'h-free':
-
-                batch_size = embeddings.size(0)
-
-                for rep in range(attack_iters):
-
-                    with torch.no_grad():
-                        imgs = torch.cat([embeddings + delta[0], embeddings + delta[1]], dim=0)
-                        imgs.clamp_(0.0, 1.0)
-                    imgs.requires_grad = True
-
-                    # get model's prediction
-                    logits = model(imgs)
-                    il, el = torch.split(logits, batch_size, dim=0)
-                    il, it = h_utils.get_logits_intraclass_at_level(il, target)
-                    el, et = h_utils.get_logits_extraclass_wo_hierarchy_at_level(el, target)
-
-                    loss = h_alpha * loss_function(il, it) + (1 - h_alpha) * loss_function(el, et)
-
-                    if not is_inference:
-                        loss.backward()
-
-                        with torch.no_grad():
-                            grad = imgs.grad
-                            grad1, grad2 = torch.split(torch.sign(grad), batch_size, dim=0)
-                            delta[0] += attack_step * grad1
-                            delta[1] += attack_step * grad2
-                            delta[0] = torch.clamp(delta[0], -attack_eps, attack_eps)
-                            delta[1] = torch.clamp(delta[1], -attack_eps, attack_eps)
-
-                        optimizer.step()
-                        optimizer.zero_grad()
-
-                with torch.no_grad():
-                    output = model(embeddings)
-
-            else:
-                raise ValueError(f'{attack} attack not implemented')
-
-            #######################################################
+            # ===============================================
             # EVALUATION
-            #######################################################
+            # ===============================================
 
             # start/reset timers
             this_rest_time = time.time() - this_rest0
@@ -298,9 +127,6 @@ def run(rank, loader, model, loss_function, distances, all_soft_labels,
 
             # only update total number of batch visited for training
             tot_steps = prev_steps if is_inference else prev_steps + batch_idx
-
-            # correct output of the classifier (for yolo-v2)
-            output = corrector(output)
 
             # compute evaluation
             with torch.no_grad():
@@ -334,33 +160,3 @@ def _generate_summary(n, loss_accum, ns, topks, topK_to_consider):
         summary[f'accuracy/top{topk}'] = np.mean(topks[topk] / ns).item()
 
     return summary
-
-
-# def _generate_summary(
-#         loss_accum,
-#         flat_accuracy_accums,
-#         hdist_accums,
-#         hdist_top_accums,
-#         hdist_mistakes_accums,
-#         hprecision_accums,
-#         hmAP_accums,
-#         num_logged,
-#         norm_mistakes_accum,
-#         loss_id,
-#         dist_id,
-# ):
-#     """
-#     Generate dictionary with epoch's summary
-#     """
-#     summary = dict()
-#     summary[loss_id] = loss_accum / num_logged
-#     # -------------------------------------------------------------------------------------------------
-#     summary.update({accuracy_ids[i]: flat_accuracy_accums[i] / num_logged for i in range(len(topK_to_consider))})
-#     summary.update({dist_id + dist_avg_ids[i]: hdist_accums[i] / num_logged for i in range(len(topK_to_consider))})
-#     summary.update({dist_id + dist_top_ids[i]: hdist_top_accums[i] / num_logged for i in range(len(topK_to_consider))})
-#     summary.update(
-#         {dist_id + dist_avg_mistakes_ids[i]: hdist_mistakes_accums[i] / (norm_mistakes_accum * topK_to_consider[i]) for i in range(len(topK_to_consider))}
-#     )
-#     summary.update({dist_id + hprec_ids[i]: hprecision_accums[i] / num_logged for i in range(len(topK_to_consider))})
-#     summary.update({dist_id + hmAP_ids[i]: hmAP_accums[i] / num_logged for i in range(len(topK_to_consider))})
-#     return summary

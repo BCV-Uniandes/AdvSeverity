@@ -20,7 +20,7 @@ pip install tqdm
 ## Data preparation
 
  * Download train+val sets of [iNaturalist'19](https://www.kaggle.com/c/inaturalist-2019-fgvc6)
- * Create the dataset by running the `generate_splits.py` script. Change the `DATA_PATH` AND `OUTPUT_DIR` to fit your specifications.
+ * Create the dataset by running the `generate_splits.py` script. Change the `DATA_PATH` AND `OUTPUT_DIR` variables to fit your specifications.
  * Resize all the images into the 224x224 format by using the `resize_images.sh` script.
  * Rename `data_paths.yml.example` and edit it to reflect the paths on your system. 
 

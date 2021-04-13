@@ -4,8 +4,9 @@ import numpy as np
 
 class HierarchyDistances():
 
-    def __init__(self, hierarchy, distances, class_to_idx, max_levels=7, attack='extra_max',
-                 level=3, topk=15):
+    def __init__(self, hierarchy, distances, class_to_idx,
+                 max_levels=7, attack='NHA',
+                 level=3):
         self.hierarchy = hierarchy
         self.distances = distances.distances
         self.class_to_idx = class_to_idx
@@ -35,23 +36,18 @@ class HierarchyDistances():
 
         self.distance_matrix = torch.from_numpy(self.distance_matrix)
 
-        # assert attack in ['extra_max', 'extra_topk', 'extra_mean', 'intra', 'extra_wo_h']
-
-        if attack == 'extra_max':
-            self.attack = self.get_logits_extraclass_max_at_level
-        elif attack == 'extra_mean':
-            self.attack = self.get_logits_extraclass_mean_at_level
-        elif attack == 'extra_topk':
-            self.attack = self.get_logits_extraclass_topk_at_level
-        elif attack == 'intra':
-            self.attack = self.get_logits_intraclass_at_level
-        elif attack == 'extra_wo_h':
-            self.attack = self.get_logits_extraclass_wo_hierarchy_at_level
-        elif attack == 'extra_sum':
-            self.attack = self.get_logits_extraclass_sum_at_level
+        if attack == 'NHA':
+            self.attack = self.get_logits_NHA
+        elif attack == 'LHA':
+            self.attack = self.get_logits_LHA
+        elif attack == 'GHA':
+            self.attack = self.get_logits_GHA
+        # elif attack == 'NHA':
+        #     self.attack = self.get_logits_NHA_sum
+        else:
+            raise ValueError(f'{attack} not implemented.')
 
         self.level = level
-        self.topk = topk
 
         self.current_to_all = None
         self.current_n_classes = self.n_classes
@@ -81,7 +77,7 @@ class HierarchyDistances():
 
         return subtrees
 
-    def get_logits_extraclass_max_at_level(self, logits, target):
+    def get_logits_NHA(self, logits, target):
         trees = self.hierarchy_levels[self.level]
         max_dim = len(trees)
 
@@ -101,49 +97,7 @@ class HierarchyDistances():
 
         return new_logits, new_target
 
-    def get_logits_extraclass_topk_at_level(self, logits, target):
-        trees = self.hierarchy_levels[self.level]
-        
-        max_dim = len(trees)
-        B = logits.size(0)
-
-        new_logits = torch.zeros(B, max_dim, device=logits.device)
-        new_target = torch.zeros_like(target)
-
-        target = target.unsqueeze(dim=1)  # B x 1
-
-        for idx, tree in enumerate(trees):
-            eq = (tree.view(1, -1).expand(B, -1).to(target.device) == target)  # this tells us whether the label is within tree
-
-            sorted_logits = torch.sort(logits[:, tree], dim=1, descending=True)[0]
-            new_logits[:, idx] = sorted_logits[:, :self.topk].mean(dim=1)
-
-            # create a new target!
-            new_target[eq.max(dim=1)[0]] = idx
-
-        return new_logits, new_target
-
-    def get_logits_extraclass_mean_at_level(self, logits, target):
-        trees = self.hierarchy_levels[self.level]
-        
-        max_dim = len(trees)
-        B = logits.size(0)
-
-        new_logits = torch.zeros(B, max_dim, device=logits.device)
-        new_target = torch.zeros_like(target)
-
-        target = target.unsqueeze(dim=1)  # B x 1
-
-        for idx, tree in enumerate(trees):
-            eq = (tree.view(1, -1).expand(B, -1).to(target.device) == target)  # this tells us whether the label is within tree
-            new_logits[:, idx] = logits[:, tree].mean(dim=1)
-
-            # create a new target!
-            new_target[eq.max(dim=1)[0]] = idx
-
-        return new_logits, new_target
-
-    def get_logits_intraclass_at_level(self, logits, target):
+    def get_logits_LHA(self, logits, target):
         classes = (self.distance_matrix <= self.level)[target, :].to(target.device)
         B = logits.size(0)
 
@@ -155,7 +109,7 @@ class HierarchyDistances():
 
         return new_logits, target
 
-    def get_logits_extraclass_wo_hierarchy_at_level(self, logits, target):
+    def get_logits_GHA(self, logits, target):
         classes = ((self.distance_matrix >= self.level) | torch.eye(self.distance_matrix.size(0), dtype=torch.bool))[target, :]
         B = logits.size(0)
 
@@ -167,25 +121,25 @@ class HierarchyDistances():
 
         return new_logits, target
 
-    def get_logits_extraclass_sum_at_level(self, logits, target):
-        trees = self.hierarchy_levels[self.level]
+    # def get_logits_NHA_sum(self, logits, target):
+    #     trees = self.hierarchy_levels[self.level]
         
-        max_dim = len(trees)
-        B = logits.size(0)
+    #     max_dim = len(trees)
+    #     B = logits.size(0)
 
-        new_logits = torch.zeros(B, max_dim, device=logits.device)
-        new_target = torch.zeros_like(target)
+    #     new_logits = torch.zeros(B, max_dim, device=logits.device)
+    #     new_target = torch.zeros_like(target)
 
-        target = target.unsqueeze(dim=1)  # B x 1
+    #     target = target.unsqueeze(dim=1)  # B x 1
 
-        for idx, tree in enumerate(trees):
-            eq = (tree.view(1, -1).expand(B, -1).to(target.device) == target)  # this tells us whether the label is within tree
-            new_logits[:, idx] = torch.logsumexp(logits[:, tree], dim=1)
+    #     for idx, tree in enumerate(trees):
+    #         eq = (tree.view(1, -1).expand(B, -1).to(target.device) == target)  # this tells us whether the label is within tree
+    #         new_logits[:, idx] = torch.logsumexp(logits[:, tree], dim=1)
 
-            # create a new target!
-            new_target[eq.max(dim=1)[0]] = idx
+    #         # create a new target!
+    #         new_target[eq.max(dim=1)[0]] = idx
 
-        return new_logits, new_target
+    #     return new_logits, new_target
 
     def get_transform_variables(self, target_level):
 
@@ -349,10 +303,6 @@ class HierarchyDistances():
 
     def get_curriculum(self, epochs):
 
-        # n_classes = {k: len(v) for k, v in self.hierarchy_levels.items()}
-        # n_classes = {k: n_classes[k] / self.n_classes for k in sorted(n_classes)[::-1]}
-        # n_classes = {k: max(0.01, v) for k, v in n_classes.items()}
-
         schedule = [(6, 0.02),
                     (5, 0.04),
                     (4, 0.06),
@@ -368,10 +318,6 @@ class HierarchyDistances():
         self.curriculum = curriculum
 
     def get_curriculum_linear(self, epochs):
-
-        # n_classes = {k: len(v) for k, v in self.hierarchy_levels.items()}
-        # n_classes = {k: n_classes[k] / self.n_classes for k in sorted(n_classes)[::-1]}
-        # n_classes = {k: max(0.01, v) for k, v in n_classes.items()}
 
         schedule = [(6, 0.14),
                     (5, 0.28),
@@ -400,4 +346,5 @@ class HierarchyDistances():
             return 6
         else:
             pos = pos[-1]
+
         return stages[pos + 1]

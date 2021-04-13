@@ -5,12 +5,11 @@ import torch.nn as nn
 from torchvision import models
 
 
-def init_model_on_gpu(world_size, opts, mean, std, distributed, rank):
+def init_model_on_gpu(opts, mean, std, rank):
 
     arch_dict = models.__dict__
-    pretrained = opts.pretrained
     print("=> using model '{}', pretrained={}".format(opts.arch, pretrained))
-    model = arch_dict[opts.arch](pretrained=pretrained)
+    model = arch_dict[opts.arch](pretrained=True)
 
     if opts.arch == "resnet18":
         feature_dim = 512
@@ -24,9 +23,6 @@ def init_model_on_gpu(world_size, opts, mean, std, distributed, rank):
     torch.cuda.set_device(rank)
     model = NormalizationWrapper(mean, std, model)
     model.cuda(opts.gpu)
-
-    if distributed:
-        model = nn.parallel.DistributedDataParallel(model, device_ids=[rank], find_unused_parameters=True)
 
     return model
 
