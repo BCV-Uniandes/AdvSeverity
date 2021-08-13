@@ -2,12 +2,15 @@
 
 This is the official repository for the paper **A Hierarchical Assessment on Adversarial Severity**
 
-## Setting up the environment
+At the moment, we are creating the official github page so you can run it without any problem.
+
+
+<!-- ## Setting up the environment
 
 First, install the environment via anaconda by following:
 ```bash
 conda env create -f environment.yml
-conda activate better-mistakes
+conda activate AdvSeverity
 pip install -e .
 ```
 
@@ -27,7 +30,10 @@ pip install tqdm
 
 # WE ARE HERE FOR THE MOMENT, WE MIGHT CHANGE THE RUNNING CODES
 
-## Running the code
+## Training
+
+
+## Evaluation
 
 The experiments of the papers are contained in the `experiments/` directory. Inside of your environment (or docker) run for example:
 ```
@@ -43,5 +49,5 @@ The entry points for the code are all inside of `scripts/`:
 ## License
 
 This work is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-nc-sa/4.0/).
-Commercial licenses available upon request.
+Commercial licenses available upon request. -->
 
