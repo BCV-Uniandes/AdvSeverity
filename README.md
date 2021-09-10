@@ -11,7 +11,6 @@ First, install the environment via anaconda by following:
 ```bash
 conda env create -f environment.yml
 conda activate AdvSeverity
-pip install -e .
 ```
 
 Then, install AutoAttack and tqdm by running:
@@ -23,14 +22,17 @@ pip install tqdm
 ## Data preparation
 
  * Download train+val sets of [iNaturalist'19](https://www.kaggle.com/c/inaturalist-2019-fgvc6)
+ * Unzip the zip file `dataset_splits/splits_inat19.py`
  * Create the dataset by running the `generate_splits.py` script. Change the `DATA_PATH` AND `OUTPUT_DIR` variables to fit your specifications.
  * Resize all the images into the 224x224 format by using the `resize_images.sh` script.
- * Rename `data_paths.yml.example` and edit it to reflect the paths on your system. 
+ * Rename `data_paths.yml` and edit it to reflect the paths on your system. 
 
 
-# WE ARE HERE FOR THE MOMENT, WE MIGHT CHANGE THE RUNNING CODES
+# Training and Evaluation
 
 ## Training
+
+To run the code
 
 
 ## Evaluation

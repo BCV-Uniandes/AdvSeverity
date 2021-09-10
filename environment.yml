@@ -1,0 +1,21 @@
+name: AdvSeverity
+channels:
+    - pytorch
+    - anaconda
+    - menpo
+    - conda-forge
+dependencies:
+    - python=3.7
+    - pip
+    - numpy
+    - cudatoolkit=10.2
+    - pytorch=1.7
+    - torchvision
+    - nltk
+    - tensorboardX
+    - tensorflow
+    - git-lfs
+    - pyyaml
+    - pip:
+        - git+https://github.com/facebookresearch/fastText.git
+        - conditional

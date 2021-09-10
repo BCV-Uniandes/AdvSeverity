@@ -1,0 +1,1 @@
+./test_all.sh 0 4 6 6 XE
