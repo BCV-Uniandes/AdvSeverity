@@ -182,14 +182,17 @@ if __name__ == "__main__":
     parser.add_argument("--dropout", default=0.0, type=float, help="Prob of dropout for network FC layer")
     parser.add_argument("--num-training-steps", default=200000, type=int, help="number of total steps to train for (num_batches*num_epochs)")
     parser.add_argument("--batch-size", default=256, type=int, help="total batch size")
+
     # Data/paths ----------------------------------------------------------------------------------------------------------------------------------------------
     parser.add_argument("--data-paths-config", help="Path to data paths yaml file", default="../data_paths.yml")
     parser.add_argument("--data-path", default=None, help="explicit location of the data folder, if None use config file.")
     parser.add_argument("--data-dir", default="data/", help="Folder containing the supplementary data")
     parser.add_argument("--output", default=None, help="path to the model folder")
+    
     # Log/val -------------------------------------------------------------------------------------------------------------------------------------------------
     parser.add_argument("--log-freq", default=100, type=int, help="Log every log_freq batches")
     parser.add_argument("--val-freq", default=5, type=int, help="Validate every val_freq epochs (except the first 10 and last 10)")
+    
     # Execution -----------------------------------------------------------------------------------------------------------------------------------------------
     parser.add_argument("--workers", default=5, type=int, help="number of data loading workers")
     parser.add_argument("--seed", default=None, type=int, help="seed for initializing training. ")

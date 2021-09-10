@@ -12,8 +12,6 @@ dependencies:
     - pytorch=1.7
     - torchvision
     - nltk
-    - tensorboardX
-    - tensorflow
     - git-lfs
     - pyyaml
     - pip:
