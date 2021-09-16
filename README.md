@@ -1,8 +1,10 @@
-# A Hierarchical Assessment on Adversarial Severity
+# Official Repository: A Hierarchical Assessment on Adversarial Severity
 
 This is the official repository for the paper **A Hierarchical Assessment on Adversarial Severity**
 
-At the moment, we are creating the official github page so you can run it without any problem.
+Coming soon. We are creating the official github page so you can run it without any problem.
+
+![Hierarchical Adversarial Attacks](images/h-attacks.png)
 
 
 <!-- ## Setting up the environment
@@ -24,7 +26,7 @@ pip install tqdm
  * Download train+val sets of [iNaturalist'19](https://www.kaggle.com/c/inaturalist-2019-fgvc6)
  * Unzip the zip file `dataset_splits/splits_inat19.py`
  * Create the dataset by running the `generate_splits.py` script. Change the `DATA_PATH` AND `OUTPUT_DIR` variables to fit your specifications.
- * Resize all the images into the 224x224 format by using the `resize_images.sh` script.
+ * Resize all the images into the 224x224 format by using the `resize_images.sh` script: `bash ./resize_images.sh new_splits_backup new_splits_downsampled 224x224!`
  * Rename `data_paths.yml` and edit it to reflect the paths on your system. 
 
 
@@ -47,6 +49,8 @@ The entry points for the code are all inside of `scripts/`:
 * `start_training.py` runs training and validation for all the methods (note: the code has been tested on single-gpu mode only)
 * `plot_tradeoffs.py` produces the main plots of the paper given the json files produced by `start_training.py`
 * `start_testing.py` runs the trained model on the test set for the epochs output by `plot_tradeoffs.py` (as in `experiment_to_best_epoch.json`).
+
+This code was based on Bertinetto's *Making Better Mistakes* [official repository](https://github.com/fiveai/making-better-mistakes)
 
 ## License
 

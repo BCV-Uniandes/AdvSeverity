@@ -4,10 +4,10 @@ from glob import glob
 from tqdm import tqdm
 from shutil import copyfile
 
-HOME_PATH = '/home/gjeanneret/'
-DATA_PATH = HOME_PATH + 'DATASETS/inaturalist/inaturalist19/train_val2019'
-SPLITS_PATH = 'dataset_splits/splits_inat19'
-OUTPUT_DIR = HOME_PATH + 'DATASETS/inaturalist/inaturalist-mbm'
+HOME_PATH = osp.join('C:\\Users','Guillaume','DATASETS','inaturalist-2019-fgvc6')
+DATA_PATH = osp.join(HOME_PATH, 'train_val2019')
+SPLITS_PATH = osp.join('splits_inat19', 'splits_inat19')
+OUTPUT_DIR = osp.join(HOME_PATH, 'split')
 
 def create_dir(dirr):
     if not osp.exists(dirr):
@@ -30,6 +30,7 @@ for split_name in ['train', 'val', 'test']:
         im_names = [x.strip() for x in im_names]
         for im_name in im_names:
             # find path for original image
+            # import pdb; pdb.set_trace()
             src = glob(osp.join(DATA_PATH, '*', str(int(class_num)), im_name))[0]
             create_dir(osp.join(output_path, f'nat{class_num}'))
             dst = osp.join(output_path, f'nat{class_num}', im_name)
