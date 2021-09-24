@@ -5,7 +5,6 @@ import torch
 import torch.nn as nn
 from conditional import conditional
 from core.model.performance import accuracy
-from core.model.labels import make_batch_onehot_labels, make_batch_soft_labels
 
 topK_to_consider = (1, 5, 10, 20, 100)
 
