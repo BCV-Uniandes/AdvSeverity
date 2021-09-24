@@ -19,14 +19,14 @@ import torch.multiprocessing as mp
 import torchvision.models as models
 import torchvision.datasets as datasets
 
-from AdvSeverity.util.rand import make_deterministic
-from AdvSeverity.util.config import load_config
-from AdvSeverity.data.transforms import train_transforms, val_transforms
-from AdvSeverity.model.evaluation import eval
-from AdvSeverity.model.hierarchy_utils import HierarchyDistances
-from AdvSeverity.model.init import init_model_on_gpu
-from AdvSeverity.model.run_xent import run
-from AdvSeverity.trees import load_hierarchy, get_weighting, load_distances, get_classes
+from core.util.rand import make_deterministic
+from core.util.config import load_config
+from core.data.transforms import train_transforms, val_transforms
+from core.model.evaluation import eval
+from core.model.hierarchy_utils import HierarchyDistances
+from core.model.init import init_model_on_gpu
+from core.model.run_xent import run
+from core.trees import load_hierarchy, get_weighting, load_distances, get_classes
 
 MODEL_NAMES = sorted(name for name in models.__dict__ if name.islower() and not name.startswith("__") and callable(models.__dict__[name]))
 OPTIMIZER_NAMES = ["adagrad", "adam", "adam_amsgrad", "rmsprop", "SGD"]

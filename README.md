@@ -7,7 +7,7 @@ Coming soon. We are creating the official github page so you can run it without 
 ![Hierarchical Adversarial Attacks](images/h-attacks.png)
 
 
-<!-- ## Setting up the environment
+-- ## Setting up the environment
 
 First, install the environment via anaconda by following:
 ```bash
@@ -34,7 +34,7 @@ pip install tqdm
 
 ## Training
 
-To run the code
+To run the training rutine, run the `main.py` script.
 
 
 ## Evaluation
@@ -55,5 +55,5 @@ This code was based on Bertinetto's *Making Better Mistakes* [official repositor
 ## License
 
 This work is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-nc-sa/4.0/).
-Commercial licenses available upon request. -->
+Commercial licenses available upon request.
 
