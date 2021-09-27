@@ -281,7 +281,7 @@ def _select_optimizer(model, opts):
         return torch.optim.SGD(model.parameters(), opts.lr, weight_decay=opts.weight_decay, momentum=0, nesterov=False, )
     
     else:
-        raise ValueError("Unknown optimizer", opts.loss)
+        raise ValueError("Unknown optimizer", opts.optimizer)
 
 
 def get_name(opts):
@@ -312,7 +312,7 @@ def get_name(opts):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--arch", default="resnet18", choices=MODEL_NAMES, help="model architecture: | ".join(MODEL_NAMES))
-    parser.add_argument("--optimizer", default="adam_amsgrad", choices=OPTIMIZER_NAMES, help="loss type: | ".join(OPTIMIZER_NAMES))
+    parser.add_argument("--optimizer", default="adam_amsgrad", choices=OPTIMIZER_NAMES, help="optimizer type: | ".join(OPTIMIZER_NAMES))
     parser.add_argument("--lr", default=1e-5, type=float, help="initial learning rate of optimizer")
     parser.add_argument("--weight-decay", default=0.0, type=float, help="weight decay of optimizer")
     parser.add_argument("--dropout", default=0.0, type=float, help="Prob of dropout for network FC layer")
@@ -320,7 +320,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch-size", default=256, type=int, help="total batch size")
     
     # Data/paths ----------------------------------------------------------------------------------------------------------------------------------------------
-    parser.add_argument("--data-paths-config", help="Path to data paths yaml file", default="../data_paths.yml")
+    parser.add_argument("--data-paths-config", help="Path to data paths yaml file", default="data_paths.yml")
     parser.add_argument("--data-path", default=None, help="explicit location of the data folder, if None use config file.")
     parser.add_argument("--data-dir", default="data/", help="Folder containing the supplementary data")
     parser.add_argument("--output", default=None, help="path to the model folder")

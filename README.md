@@ -34,21 +34,52 @@ pip install tqdm
 
 ## Training
 
-To run the training rutine, run the `main.py` script.
+To run the training rutine, run the `main.py` script as follows:
 
+```bash
+python main.py \
+    --arch resnet18 \
+    --dropout 0.5 \
+    --output PATH/TO/OUTPUT \
+    --num_training_steps 200000 \
+    --gpu GPU \
+    --val_freq 1 \
+    --attack-eps EPSILON \
+    --attack-iter ITERATIONS \
+    --attack-step STEP \
+    --attack free \
+    --curriculum-training
+```
+
+If you want to train the method without the proposed curriculum, don't use the flag `--curriculum-training`. Further, if you want to train the model with TRADES change the flag `--attack free` with `--attack trades`.
+
+To restore the training from a checkpoint, just use the same command the fristly used.
 
 ## Evaluation
 
-The experiments of the papers are contained in the `experiments/` directory. Inside of your environment (or docker) run for example:
-```
-cd experiments
-bash crossentropy_inaturalist19.sh
+To perform the evaluation with the proposed attacks, pgd or NHAA, run the `main.py` script as follows:
+
+```bash
+python main.py \
+    --arch resnet18 \
+    --output PATH/TO/OUTPUT \
+    --num_training_steps 200000 \
+    --gpu GPU \
+    --val_freq 1 \
+    --attack-eps EPSILON \
+    --attack-iter ITERATIONS \
+    --attack-step STEP \
+    --evaluate ATTACK
 ```
 
-The entry points for the code are all inside of `scripts/`:
-* `start_training.py` runs training and validation for all the methods (note: the code has been tested on single-gpu mode only)
-* `plot_tradeoffs.py` produces the main plots of the paper given the json files produced by `start_training.py`
-* `start_testing.py` runs the trained model on the test set for the epochs output by `plot_tradeoffs.py` (as in `experiment_to_best_epoch.json`).
+If `--evaluate` uses as input `hPGD`, use the `--hPGD` flag to select between `LHA`, `GHA` or `NHA` and `--hPGD-level` to select the target height.
+
+<!-- # Citation
+
+If you found our paper or code useful, please cite our work:
+
+```
+``` -->
 
 This code was based on Bertinetto's *Making Better Mistakes* [official repository](https://github.com/fiveai/making-better-mistakes)
 
