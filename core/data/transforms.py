@@ -13,6 +13,6 @@ def train_transforms():
     )
 
 
-def val_transforms(dataset, normalize=True, resize=None, crop=None):
+def val_transforms():
 
     return transforms.ToTensor()

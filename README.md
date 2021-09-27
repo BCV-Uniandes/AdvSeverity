@@ -41,9 +41,9 @@ python main.py \
     --arch resnet18 \
     --dropout 0.5 \
     --output PATH/TO/OUTPUT \
-    --num_training_steps 200000 \
+    --num-training-steps 200000 \
     --gpu GPU \
-    --val_freq 1 \
+    --val-freq 1 \
     --attack-eps EPSILON \
     --attack-iter ITERATIONS \
     --attack-step STEP \
@@ -63,12 +63,11 @@ To perform the evaluation with the proposed attacks, pgd or NHAA, run the `main.
 python main.py \
     --arch resnet18 \
     --output PATH/TO/OUTPUT \
-    --num_training_steps 200000 \
     --gpu GPU \
-    --val_freq 1 \
+    --val-freq 1 \
     --attack-eps EPSILON \
     --attack-iter ITERATIONS \
-    --attack-step STEP \
+    --attack-step 1 \
     --evaluate ATTACK
 ```
 
