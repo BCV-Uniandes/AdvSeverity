@@ -37,7 +37,6 @@ def main_worker(opts):
     # ==========================================
     # Enables the cudnn auto-tuner to find the best algorithm to use for your hardware
     cudnn.benchmark = True
-    opts.gpu = rank
 
     # pretty printer for cmd line options
     pp = PrettyPrinter(indent=4)
@@ -379,7 +378,7 @@ if __name__ == "__main__":
     # setup data path from config file if needed
     if opts.data_path is None:
         opts.data_paths = load_config(opts.data_paths_config)
-        opts.data_path = opts.data_paths[opts.data]
+        opts.data_path = opts.data_paths['inaturalist19-224']
 
     # ==========================================
     # setup random number generation
