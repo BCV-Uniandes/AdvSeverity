@@ -5,7 +5,7 @@ import numpy as np
 class HierarchyDistances():
 
     def __init__(self, hierarchy, distances, class_to_idx, max_levels=7, attack='NHA',
-                 level=3, topk=15):
+                 level=3):
         self.hierarchy = hierarchy
         self.distances = distances.distances
         self.class_to_idx = class_to_idx
@@ -159,16 +159,7 @@ class HierarchyDistances():
 
         return label_transform(self.current_to_all), transition
 
-    def initialize_new_classification_layer_scratch(self, model, target_level):
-
-        lt, _ = self.get_transform_variables(target_level)
-
-        in_features = model.model.fc[1].in_features
-        model.model.fc[1] = torch.nn.Linear(in_features, self.current_n_classes, bias=True).cuda()
-
-        return lt
-
-    def initialize_new_classification_layer_copy(self, model, target_level):
+    def initialize_new_classification_layer(self, model, target_level):
 
         lt, transition = self.get_transform_variables(target_level)
         
@@ -204,78 +195,6 @@ class HierarchyDistances():
 
         return lt
 
-    def initialize_new_classification_layer_sum(self, model, target_level):
-
-        trees = self.hierarchy_levels[target_level]
-        self.current_n_classes = len(trees)
-        print(f'==> Setting new set of labels. Total classes: {self.current_n_classes}')
-
-        class label_transform():
-            def __init__(self, current_to_all):
-                self.current_to_all = current_to_all
-
-            def __call__(self, x):
-                for current_class, leaf_classes in self.current_to_all.items():
-                    if torch.any(leaf_classes == x):
-                        return current_class
-
-        if self.current_to_all is None:
-            in_features = model.model.fc[1].in_features
-            model.model.fc[1] = torch.nn.Linear(in_features=in_features,
-                                                out_features=self.current_n_classes,
-                                                bias=True).cuda()
-            self.current_to_all = {}
-            for new_class, tree in enumerate(trees):
-                self.current_to_all[new_class] = tree.view(1, -1).clone()
-
-            return label_transform(self.current_to_all)
-
-        new_current_to_all = {}
-        transition = {k: [] for k in self.current_to_all.keys()}
-
-        for new_class, tree in enumerate(trees):
-
-            # tree, tensor with shape n_classes2
-            new_current_to_all[new_class] = tree.view(1, -1).clone()
-            tree = tree.view(-1, 1)
-
-            for current_class, leaf_classes in self.current_to_all.items():
-
-                # this means that one of the classes
-                # within current_class is on the tree
-                if torch.any(tree == leaf_classes):
-                    transition[current_class].append(new_class)
-
-        in_features = model.model.fc[1].in_features
-        out_features = len(trees)
-
-        old_weight = model.model.fc[1].weight.data  # shape, out x in
-        old_bias = model.model.fc[1].bias.data
-
-        new_weight = torch.zeros(out_features, in_features).cuda()
-        new_bias = torch.zeros(out_features).cuda()
-
-        for current_class, new_class in transition.items():
-            new_weight[new_class, :] = old_weight[current_class, :].detach()
-            new_bias[new_class] = old_bias[current_class].detach()
-            new_bias[new_class] -= torch.log(torch.tensor(float(len(new_class))))
-
-        new_bias = new_bias.detach()
-        new_weight = new_weight.detach()
-
-        model.model.fc[1] = torch.nn.Linear(in_features, out_features, bias=True)
-
-        model.model.fc[1].bias.data = new_bias
-        model.model.fc[1].weight.data = new_weight
-        model.model.fc[1].out_features = out_features
-
-        self.current_to_all = new_current_to_all
-
-        return label_transform(self.current_to_all)
-
-    def initialize_new_classification_layer_mult(self, model, target_level):
-        return self.initialize_new_classification_layer_sum(model, target_level)
-
     def get_curriculum(self, epochs):
 
         # n_classes = {k: len(v) for k, v in self.hierarchy_levels.items()}
@@ -288,26 +207,6 @@ class HierarchyDistances():
                     (3, 0.15),
                     (2, 0.25),
                     (1, 0.35),
-                    (0, 1.00)]
-        curriculum = [(l, int(epochs * p)) for (l, p) in schedule]
-
-        print('Curriculum created. The training will follow the following schedule:')
-        print(curriculum)
-
-        self.curriculum = curriculum
-
-    def get_curriculum_linear(self, epochs):
-
-        # n_classes = {k: len(v) for k, v in self.hierarchy_levels.items()}
-        # n_classes = {k: n_classes[k] / self.n_classes for k in sorted(n_classes)[::-1]}
-        # n_classes = {k: max(0.01, v) for k, v in n_classes.items()}
-
-        schedule = [(6, 0.14),
-                    (5, 0.28),
-                    (4, 0.42),
-                    (3, 0.56),
-                    (2, 0.70),
-                    (1, 0.84),
                     (0, 1.00)]
         curriculum = [(l, int(epochs * p)) for (l, p) in schedule]
 

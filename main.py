@@ -101,7 +101,7 @@ def main_worker(opts):
         h_utils.get_curriculum(opts.epochs)
         _get_current_epoch(opts)
         current_stage = h_utils.get_current_stage(opts.start_epoch - 1)
-        labels_transform = h_utils.initialize_new_classification_layer_copy(model, current_stage)
+        labels_transform = h_utils.initialize_new_classification_layer(model, current_stage)
         model.cuda(opts.gpu)
         train_dataset.target_transform = labels_transform
         val_dataset.target_transform = labels_transform
@@ -178,7 +178,7 @@ def main_worker(opts):
                 current_stage = stage
                 print(f'==> Setting new stage to: {stage}')
                 with torch.no_grad():
-                    labels_transform = h_utils.initialize_new_classification_layer_copy(model, current_stage)
+                    labels_transform = h_utils.initialize_new_classification_layer(model, current_stage)
                 train_dataset.target_transform = labels_transform
                 val_dataset.target_transform = labels_transform
                 optimizer = _select_optimizer(model, opts)
