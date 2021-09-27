@@ -207,9 +207,6 @@ def eval(loader, model, loss_function, distances,
         # only update total number of batch visited for training
         tot_steps = prev_steps
 
-        # correct output of the classifier (for yolo-v2)
-        output = corrector(output)
-
         # if it is time to log, compute all measures, store in summary and pass to tensorboard.
         if batch_idx % log_freq == 0:
             num_logged += 1

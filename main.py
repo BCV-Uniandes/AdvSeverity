@@ -95,7 +95,7 @@ def main_worker(opts):
 
     # setup hierarchical settings
     h_utils = HierarchyDistances(hierarchy, distances, train_dataset.class_to_idx,
-                                 attack=opts.hPGD, level=opts.hPGD_level, topk=opts.hPGD_topk)
+                                 attack=opts.hPGD, level=opts.hPGD_level)
 
     if opts.curriculum_training:
         h_utils.get_curriculum(opts.epochs)
