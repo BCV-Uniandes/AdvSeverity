@@ -23,7 +23,7 @@ def init_model_on_gpu(opts, mean, std):
                                        out_features=opts.num_classes,
                                        bias=True))
 
-    torch.cuda.set_device(rank)
+    torch.cuda.set_device(opts.gpu)
     model = NormalizationWrapper(mean, std, model)
     model.cuda(opts.gpu)
 

@@ -59,8 +59,7 @@ def main_worker(opts):
     # get data loaders
     train_loader = data.DataLoader(train_dataset, batch_size=opts.batch_size,
                                    shuffle=True, num_workers=opts.workers,
-                                   pin_memory=True, drop_last=True,
-                                   sampler=train_sampler)
+                                   pin_memory=True, drop_last=True)
     val_loader = data.DataLoader(val_dataset, batch_size=opts.batch_size,
                                  shuffle=False, num_workers=opts.workers,
                                  pin_memory=True, drop_last=False)
@@ -71,7 +70,7 @@ def main_worker(opts):
     opts.epochs = int(round(opts.num_training_steps / divisor))
 
     # Load hierarchy and classes ------------------------------------------------------------------------------------------------------------------------------
-    distances = load_distances(opts.data, 'ilsvrc', opts.data_dir)
+    distances = load_distances('ilsvrc', opts.data_dir)
     hierarchy = load_hierarchy(opts.data_dir)
 
     classes = train_dataset.classes
