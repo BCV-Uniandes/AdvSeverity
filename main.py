@@ -37,6 +37,7 @@ def main_worker(opts):
     # ==========================================
     # Enables the cudnn auto-tuner to find the best algorithm to use for your hardware
     cudnn.benchmark = True
+    opts.gpu = 0  # as we set CUDA_VISIBLE_DEVICES = YOUR_GPU, there should be only 1 visible gpu
 
     # pretty printer for cmd line options
     pp = PrettyPrinter(indent=4)
