@@ -4,10 +4,9 @@ from glob import glob
 from tqdm import tqdm
 from shutil import copyfile
 
-HOME_PATH = osp.join('C:\\Users','Guillaume','DATASETS','inaturalist-2019-fgvc6')
-DATA_PATH = osp.join(HOME_PATH, 'train_val2019')
+DATA_PATH = 'PATH/TO/DATA'
 SPLITS_PATH = osp.join('splits_inat19', 'splits_inat19')
-OUTPUT_DIR = osp.join(HOME_PATH, 'split')
+OUTPUT_DIR = 'OUTPUT/PATH'
 
 def create_dir(dirr):
     if not osp.exists(dirr):
