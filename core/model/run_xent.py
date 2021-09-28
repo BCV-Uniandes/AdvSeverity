@@ -34,7 +34,7 @@ def run(loader, model, loss_function, distances,
 
     # strings useful for logging
     descriptor = "VAL" if is_inference else "TRAIN"
-    loss_id = "loss/" + opts.loss
+    loss_id = "loss/CE"
     dist_id = "ilsvrc_dist"
 
     # Initialise accumulators to store the several measures of performance (accumulate as sum)
