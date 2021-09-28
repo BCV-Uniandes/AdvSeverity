@@ -31,7 +31,7 @@ pip install tqdm
 
 ## Model Downloads
 
-To use our trained models, you must download them first. Once the environment is installed, run `git lfs install --local`. 
+To use our trained models, you must download them first. If you check the models folders, the uploaded files weight \~4kb each. Once the environment is installed and activated, run `git lfs install --local` and `git lfs pull`. Finally, check the weights of each file, it should be \~164Mb.
 
 # Training and Evaluation
 
