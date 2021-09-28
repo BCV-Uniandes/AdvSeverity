@@ -289,15 +289,15 @@ def get_name(opts):
         name = 'clean-eval.json'
 
     elif opts.evaluate == 'hPGD':
-        name = 'hPGD-u-{}-level{}-iter{:d}-eps{:d}-step{:d}-eval.json'.format(
-                                                                              opts.hPGD if opts.hPGD != 'extra_topk' else opts.hPGD + str(opts.hPGD_topk),
-                                                                              opts.hPGD_level,
-                                                                              opts.attack_iter_evaluation,
-                                                                              int(255 * opts.attack_eps),
-                                                                              int(255 * opts.attack_step))
+        name = 'hPGD-{}-level{}-iter{:d}-eps{:d}-step{:d}-eval.json'.format(opts.hPGD,
+                                                                            opts.hPGD_level,
+                                                                            opts.attack_iter_evaluation,
+                                                                            int(255 * opts.attack_eps),
+                                                                            int(255 * opts.attack_step))
 
     elif opts.evaluate == 'NHAA':
-        name = 'NHAA-level{:d}-eps{:d}-eval.json'.format(opts.hPGD_level, int(255 * opts.attack_eps))
+        name = 'NHAA-level{:d}-eps{:d}-eval.json'.format(opts.hPGD_level,
+                                                         int(255 * opts.attack_eps))
 
     else:
         name = '{}-iter{:d}-eps{:d}-step{:d}-eval.json'.format(opts.evaluate,
