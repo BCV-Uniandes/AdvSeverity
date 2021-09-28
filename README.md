@@ -6,8 +6,7 @@ Coming soon. We are creating the official github page so you can run it without 
 
 ![Hierarchical Adversarial Attacks](images/h-attacks.png)
 
-
--- ## Setting up the environment
+## Setting up the environment
 
 First, install the environment via anaconda by following:
 ```bash
@@ -30,6 +29,10 @@ pip install tqdm
  * Rename `data_paths.yml` and edit it to reflect the paths on your system. 
 
 
+## Model Downloads
+
+To use our trained models, you must download them first. Once the environment is installed, run `git lfs install --local`. 
+
 # Training and Evaluation
 
 ## Training
@@ -45,7 +48,7 @@ python main.py \
     --gpu GPU \
     --val-freq 1 \
     --attack-eps EPSILON \
-    --attack-iter ITERATIONS \
+    --attack-iter-training ITERATIONS \
     --attack-step STEP \
     --attack free \
     --curriculum-training
@@ -66,19 +69,35 @@ python main.py \
     --gpu GPU \
     --val-freq 1 \
     --attack-eps EPSILON \
-    --attack-iter ITERATIONS \
+    --attack-iter-training ITERATIONS \
     --attack-step 1 \
-    --evaluate ATTACK
+    --evaluate ATTACK \
+    --attack-iter-training ATTACKITERATIONS
 ```
 
-If `--evaluate` uses as input `hPGD`, use the `--hPGD` flag to select between `LHA`, `GHA` or `NHA` and `--hPGD-level` to select the target height.
+If `--evaluate` uses as input `hPGD`, use the `--hPGD` flag to select between `LHA`, `GHA` or `NHA` and `--hPGD-level` to select the target height. To set the total number of attack iterations, use the flag `--attack-iter-training`.
 
-<!-- # Citation
+# Citation
 
 If you found our paper or code useful, please cite our work:
 
 ```
-``` -->
+@article{DBLP:journals/corr/abs-2108-11785,
+  author    = {Guillaume Jeanneret and
+               Juan C. P{\'{e}}rez and
+               Pablo Arbelaez},
+  title     = {A Hierarchical Assessment of Adversarial Severity},
+  journal   = {CoRR},
+  volume    = {abs/2108.11785},
+  year      = {2021},
+  url       = {https://arxiv.org/abs/2108.11785},
+  eprinttype = {arXiv},
+  eprint    = {2108.11785},
+  timestamp = {Fri, 27 Aug 2021 15:02:29 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/abs-2108-11785.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+```
 
 This code was based on Bertinetto's *Making Better Mistakes* [official repository](https://github.com/fiveai/making-better-mistakes)
 

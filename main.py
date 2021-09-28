@@ -341,7 +341,7 @@ if __name__ == "__main__":
     parser.add_argument("--hPGD-level", default=3, type=int, help='hPGD height level')
 
     # Training/Evaluation Attack ---------------------------------------------------------------------------------------------------------------------------------------
-    parser.add_argument("--attack-iter-training", default=0, type=int, help='Attack training iterations')
+    parser.add_argument("--attack-iter-training", default=0, type=int, help='Attack evaluation iterations')
     parser.add_argument("--attack-iter-evaluation", default=50, type=int, help='Attack training iterations')
     parser.add_argument("--attack-step", default=0, type=float, help='Attack training step')
     parser.add_argument("--attack-eps", default=0, type=float, help='Attack training epsilon')
