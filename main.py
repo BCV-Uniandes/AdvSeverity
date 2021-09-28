@@ -67,7 +67,7 @@ def main_worker(opts):
 
     # Adjust the number of epochs to the size of the dataset
     num_batches = len(train_loader)
-    divisor = num_batches * (opts.attack_iter) if 'free' in opts.attack else num_batches
+    divisor = num_batches * (opts.attack_iter_training) if 'free' in opts.attack else num_batches
     opts.epochs = int(round(opts.num_training_steps / divisor))
 
     # Load hierarchy and classes ------------------------------------------------------------------------------------------------------------------------------
@@ -146,14 +146,14 @@ def main_worker(opts):
         print('Attack:', opts.evaluate)
         print('Epsilon:', opts.attack_eps)
         print('Step:', opts.attack_step)
-        print('Iterations:', opts.attack_iter, '\n\n\n')
+        print('Iterations:', opts.attack_iter_evaluation, '\n\n\n')
 
         model.eval()
 
         summary_val = eval(val_loader, model, loss_function, distances,
                            classes, opts, opts.start_epoch, steps,
                            None, is_inference=True,
-                           attack_iters=opts.attack_iter, attack_step=opts.attack_step,
+                           attack_iters=opts.attack_iter_evaluation, attack_step=opts.attack_step,
                            attack_eps=opts.attack_eps, attack=opts.evaluate,
                            h_utils=h_utils)
 
@@ -194,7 +194,7 @@ def main_worker(opts):
         summary_train, steps, delta = run(train_loader, model, loss_function, distances,
                                    classes, opts, epoch, steps,
                                    optimizer, is_inference=False,
-                                   attack_iters=opts.attack_iter, attack_step=opts.attack_step,
+                                   attack_iters=opts.attack_iter_training, attack_step=opts.attack_step,
                                    attack_eps=opts.attack_eps, attack=opts.attack,
                                    trades_beta=opts.trades_beta, delta=delta,
                                    h_utils=h_utils)
@@ -292,7 +292,7 @@ def get_name(opts):
         name = 'hPGD-u-{}-level{}-iter{:d}-eps{:d}-step{:d}-eval.json'.format(
                                                                               opts.hPGD if opts.hPGD != 'extra_topk' else opts.hPGD + str(opts.hPGD_topk),
                                                                               opts.hPGD_level,
-                                                                              opts.attack_iter,
+                                                                              opts.attack_iter_evaluation,
                                                                               int(255 * opts.attack_eps),
                                                                               int(255 * opts.attack_step))
 
@@ -301,7 +301,7 @@ def get_name(opts):
 
     else:
         name = '{}-iter{:d}-eps{:d}-step{:d}-eval.json'.format(opts.evaluate,
-                                                               opts.attack_iter,
+                                                               opts.attack_iter_evaluation,
                                                                int(255 * opts.attack_eps),
                                                                int(255 * opts.attack_step))
 
@@ -341,7 +341,8 @@ if __name__ == "__main__":
     parser.add_argument("--hPGD-level", default=3, type=int, help='hPGD height level')
 
     # Training/Evaluation Attack ---------------------------------------------------------------------------------------------------------------------------------------
-    parser.add_argument("--attack-iter", default=0, type=int, help='Attack training iterations')
+    parser.add_argument("--attack-iter-training", default=0, type=int, help='Attack training iterations')
+    parser.add_argument("--attack-iter-evaluation", default=50, type=int, help='Attack training iterations')
     parser.add_argument("--attack-step", default=0, type=float, help='Attack training step')
     parser.add_argument("--attack-eps", default=0, type=float, help='Attack training epsilon')
 
