@@ -82,20 +82,13 @@ If `--evaluate` uses as input `hPGD`, use the `--hPGD` flag to select between `L
 If you found our paper or code useful, please cite our work:
 
 ```
-@article{DBLP:journals/corr/abs-2108-11785,
-  author    = {Guillaume Jeanneret and
-               Juan C. P{\'{e}}rez and
-               Pablo Arbelaez},
-  title     = {A Hierarchical Assessment of Adversarial Severity},
-  journal   = {CoRR},
-  volume    = {abs/2108.11785},
-  year      = {2021},
-  url       = {https://arxiv.org/abs/2108.11785},
-  eprinttype = {arXiv},
-  eprint    = {2108.11785},
-  timestamp = {Fri, 27 Aug 2021 15:02:29 +0200},
-  biburl    = {https://dblp.org/rec/journals/corr/abs-2108-11785.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+@misc{jeanneret2021hierarchical,
+      title={A Hierarchical Assessment of Adversarial Severity}, 
+      author={Guillaume Jeanneret and Juan C Perez and Pablo Arbelaez},
+      year={2021},
+      eprint={2108.11785},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
 }
 ```
 
