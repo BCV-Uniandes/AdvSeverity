@@ -1,1 +1,0 @@
-./test_all.sh 1 4 8 6 CURR
