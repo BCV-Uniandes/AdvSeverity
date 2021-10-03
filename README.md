@@ -72,7 +72,7 @@ python main.py \
     --attack-iter-training ITERATIONS \
     --attack-step 1 \
     --evaluate ATTACK \
-    --attack-iter-training ATTACKITERATIONS
+    --attack-iter-evaluation ATTACKITERATIONS
 ```
 
 If `--evaluate` uses as input `hPGD`, use the `--hPGD` flag to select between `LHA`, `GHA` or `NHA` and `--hPGD-level` to select the target height. To set the total number of attack iterations, use the flag `--attack-iter-training`.
