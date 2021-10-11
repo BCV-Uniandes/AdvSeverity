@@ -82,13 +82,13 @@ If `--evaluate` uses as input `hPGD`, use the `--hPGD` flag to select between `L
 If you found our paper or code useful, please cite our work:
 
 ```
-@misc{jeanneret2021hierarchical,
-      title={A Hierarchical Assessment of Adversarial Severity}, 
-      author={Guillaume Jeanneret and Juan C Perez and Pablo Arbelaez},
-      year={2021},
-      eprint={2108.11785},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
+@InProceedings{Jeanneret_2021_ICCV,
+    author    = {Jeanneret, Guillaume and Perez, Juan C. and Arbelaez, Pablo},
+    title     = {A Hierarchical Assessment of Adversarial Severity},
+    booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) Workshops},
+    month     = {October},
+    year      = {2021},
+    pages     = {61-70}
 }
 ```
 
