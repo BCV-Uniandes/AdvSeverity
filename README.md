@@ -2,8 +2,6 @@
 
 This is the official repository for the paper **A Hierarchical Assessment on Adversarial Severity**
 
-Coming soon. We are creating the official github page so you can run it without any problem.
-
 ![Hierarchical Adversarial Attacks](images/h-attacks.png)
 
 ## Setting up the environment
