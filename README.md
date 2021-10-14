@@ -1,6 +1,6 @@
 # Official Repository: A Hierarchical Assessment on Adversarial Severity
 
-This is the official repository for the paper **A Hierarchical Assessment on Adversarial Severity**
+This is the official repository for the paper [**A Hierarchical Assessment of Adversarial Severity**](https://openaccess.thecvf.com/content/ICCV2021W/AROW/html/Jeanneret_A_Hierarchical_Assessment_of_Adversarial_Severity_ICCVW_2021_paper.html). This paper recieved the Best Paper Awards at the ICCV2021 workshop on [Adversarial Robustness in the Real World](https://iccv21-adv-workshop.github.io/))
 
 ![Hierarchical Adversarial Attacks](images/h-attacks.png)
 
